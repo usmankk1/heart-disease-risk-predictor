@@ -1,0 +1,42 @@
+# Heart Disease Risk Predictor
+
+A machine learning project that predicts cardiovascular disease risk from patient vitals using Classification algorithms (Logistic Regression and SVM).
+
+## Dataset
+- Source: [Heart Failure Prediction Dataset](https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction)
+- 918 patients, 11 clinical features
+- Target: Heart Disease (0 = No, 1 = Yes)
+
+## Project Structure
+
+## Models Used
+- Logistic Regression (tuned with GridSearchCV)
+- Support Vector Machine — RBF kernel (tuned with GridSearchCV)
+
+## Results
+| Metric | Logistic Regression | SVM |
+|--------|-------------------|-----|
+| Accuracy | 87% | 88% |
+| ROC-AUC | 0.903 | 0.898 |
+| Heart Disease Recall | 91% | 91% |
+| 10-Fold CV Accuracy | 83.77% | 84.18% |
+
+## Key Findings
+- ST_Slope is the most important predictor of heart disease
+- Asymptomatic chest pain (ASY) strongly indicates heart disease
+- Optimal classification threshold: 0.405 (improves recall to 94.1%)
+
+## How to Run
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run full pipeline
+python main.py
+
+# Predict for a new patient
+python predict.py
+```
+
+## Tech Stack
+Python, scikit-learn, pandas, numpy, matplotlib, seaborn
