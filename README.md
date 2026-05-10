@@ -1,6 +1,5 @@
 # Heart Disease Risk Predictor
-
-A machine learning project that predicts cardiovascular disease risk from patient vitals using Classification algorithms (Logistic Regression and SVM).
+A machine learning project that predicts cardiovascular disease risk from patient vitals using Classification algorithms (Logistic Regression, SVM, and Random Forest).
 
 ## Dataset
 - Source: [Heart Failure Prediction Dataset](https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction)
@@ -40,4 +39,11 @@ python predict.py
 ```
 
 ## Tech Stack
-Python, scikit-learn, pandas, numpy, matplotlib, seaborn
+Python, scikit-learn, pandas, numpy, matplotlib, seaborn, shap, streamlit
+
+## Live Demo
+Run the Streamlit web app locally:
+```bash
+streamlit run app.py
+```
+Enter patient vitals in the sidebar, click **Predict Risk** to get an instant risk assessment with SHAP explanation.
