@@ -12,14 +12,15 @@ A machine learning project that predicts cardiovascular disease risk from patien
 ## Models Used
 - Logistic Regression (tuned with GridSearchCV)
 - Support Vector Machine — RBF kernel (tuned with GridSearchCV)
+- Random Forest (tuned with GridSearchCV)
 
 ## Results
-| Metric | Logistic Regression | SVM |
-|--------|-------------------|-----|
-| Accuracy | 87% | 88% |
-| ROC-AUC | 0.903 | 0.898 |
-| Heart Disease Recall | 91% | 91% |
-| 10-Fold CV Accuracy | 83.77% | 84.18% |
+| Metric | Logistic Regression | SVM | Random Forest |
+|--------|-------------------|-----|---------------|
+| Accuracy | 87% | 88% | 89% |
+| ROC-AUC | 0.903 | 0.898 | 0.930 |
+| Heart Disease Recall | 91% | 91% | 91% |
+| 10-Fold CV Accuracy | 83.77% | 84.18% | 84.46% |
 
 ## Key Findings
 - ST_Slope is the most important predictor of heart disease
