@@ -33,3 +33,19 @@ def cross_validate_model(model, X_train, y_train, model_name):
     cv_scores = cross_val_score(model, X_train, y_train, cv=10, scoring='accuracy')
     print(f'{model_name} 10-Fold CV Accuracy: {cv_scores.mean():.4f} ± {cv_scores.std():.4f}')
     return cv_scores
+
+from sklearn.ensemble import RandomForestClassifier
+
+def train_random_forest(X_train, y_train):
+    param_grid = {
+        'n_estimators': [100, 200, 300],
+        'max_depth': [None, 10, 20],
+        'min_samples_split': [2, 5],
+        'min_samples_leaf': [1, 2]
+    }
+    rf = RandomForestClassifier(random_state=42)
+    grid_rf = GridSearchCV(rf, param_grid, cv=5, scoring='f1', n_jobs=-1)
+    grid_rf.fit(X_train, y_train)
+    print(f'Best RF params: {grid_rf.best_params_}')
+    print(f'Best CV F1: {grid_rf.best_score_:.4f}')
+    return grid_rf.best_estimator_
