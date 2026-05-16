@@ -106,3 +106,4 @@ if st.button('Predict Risk'):
         feature_names=feature_names
     ), show=False)
     st.pyplot(fig)
+    

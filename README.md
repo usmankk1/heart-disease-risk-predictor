@@ -9,10 +9,14 @@ A machine learning project that predicts cardiovascular disease risk from patien
 ## Project Structure
 
 ## Models Used
+## Models Used
 - Logistic Regression (tuned with GridSearchCV)
 - Support Vector Machine — RBF kernel (tuned with GridSearchCV)
 - Random Forest (tuned with GridSearchCV)
 - Random Forest (tuned with Optuna — best model)
+- XGBoost (tuned with GridSearchCV)
+- MLP Neural Network (tuned with GridSearchCV)
+- Voting Classifier (Ensemble of LR + RF Optuna + XGBoost)
 
 ## Results
 | Metric | Logistic Regression | SVM | Random Forest |
