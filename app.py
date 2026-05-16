@@ -15,11 +15,14 @@ def load_models():
     rf_optuna = joblib.load(r'F:\AI\HDRP\HDRP\models\random_forest_optuna.pkl')
     lr = joblib.load(r'F:\AI\HDRP\HDRP\models\logistic_regression.pkl')
     svm = joblib.load(r'F:\AI\HDRP\HDRP\models\svm_rbf.pkl')
+    xgb = joblib.load(r'F:\AI\HDRP\HDRP\models\xgboost.pkl')
+    mlp = joblib.load(r'F:\AI\HDRP\HDRP\models\mlp.pkl')
+    voting = joblib.load(r'F:\AI\HDRP\HDRP\models\voting_classifier.pkl')
     scaler = joblib.load(r'F:\AI\HDRP\HDRP\models\scaler.pkl')
     _, _, _, _, _, feature_names = load_and_preprocess(r'F:\AI\HDRP\HDRP\data\heart.csv')
-    return rf, rf_optuna, lr, svm, scaler, feature_names
+    return rf, rf_optuna, lr, svm, xgb, mlp, voting, scaler, feature_names
 
-rf_model, rf_optuna_model, lr_model, svm_model, scaler, feature_names = load_models()
+rf_model, rf_optuna_model, lr_model, svm_model, xgb_model, mlp_model, voting_model, scaler, feature_names = load_models()
 
 st.title('Heart Disease Risk Predictor')
 st.markdown('Enter patient vitals below to predict cardiovascular disease risk.')
@@ -37,10 +40,13 @@ exercise_angina = st.sidebar.selectbox('Exercise Angina', ['N', 'Y'])
 oldpeak = st.sidebar.slider('Oldpeak', 0.0, 6.0, 1.0)
 st_slope = st.sidebar.selectbox('ST Slope', ['Up', 'Flat', 'Down'])
 model_choice = st.sidebar.selectbox('Model', [
-    'Random Forest (Optuna)',
+    'Random Forest Optuna (Best)',
+    'Voting Classifier (Ensemble)',
     'Random Forest (GridSearchCV)',
+    'XGBoost',
     'Logistic Regression',
-    'SVM'
+    'SVM',
+    'MLP Neural Network'
 ])
 
 def preprocess_input():
@@ -65,14 +71,20 @@ def preprocess_input():
 if st.button('Predict Risk'):
     X = preprocess_input()
 
-    if model_choice == 'Random Forest (Optuna)':
+    if model_choice == 'Random Forest Optuna (Best)':
         model = rf_optuna_model
+    elif model_choice == 'Voting Classifier (Ensemble)':
+        model = voting_model
     elif model_choice == 'Random Forest (GridSearchCV)':
         model = rf_model
+    elif model_choice == 'XGBoost':
+        model = xgb_model
     elif model_choice == 'Logistic Regression':
         model = lr_model
-    else:
+    elif model_choice == 'SVM':
         model = svm_model
+    else:
+        model = mlp_model
 
     prob = model.predict_proba(X)[0][1]
     prediction = 'HIGH RISK' if prob >= 0.5 else 'LOW RISK'
