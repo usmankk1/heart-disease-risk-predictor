@@ -12,14 +12,14 @@ def main():
         load_and_preprocess(DATA_PATH)
     print(f'Train: {X_train.shape}, Test: {X_test.shape}')
 
-    # 2. Train all three models
+    # 2. Train all models
     print('\n=== Training Logistic Regression ===')
     lr_model = train_logistic_regression(X_train, y_train)
 
     print('\n=== Training SVM ===')
     svm_model = train_svm(X_train, y_train)
 
-    print('\n=== Training Random Forest ===')
+    print('\n=== Training Random Forest (GridSearchCV) ===')
     rf_model = train_random_forest(X_train, y_train)
 
     # 3. Cross-validate
@@ -34,11 +34,17 @@ def main():
     svm_proba, svm_auc = evaluate_model(svm_model, X_test, y_test, 'SVM')
     rf_proba, rf_auc = evaluate_model(rf_model, X_test, y_test, 'Random Forest')
 
-    # 5. ROC curves — all three models
+    # Load Optuna model and evaluate
+    print('\n=== Evaluating Optuna Random Forest ===')
+    rf_optuna = joblib.load(r'F:\AI\HDRP\HDRP\models\random_forest_optuna.pkl')
+    rf_optuna_proba, rf_optuna_auc = evaluate_model(rf_optuna, X_test, y_test, 'Random Forest (Optuna)')
+
+    # 5. ROC curves — all models
     plot_roc_curves([
         ('Logistic Regression', lr_proba),
         ('SVM (RBF)', svm_proba),
-        ('Random Forest', rf_proba)
+        ('Random Forest', rf_proba),
+        ('Random Forest Optuna', rf_optuna_proba)
     ], y_test)
 
     # 6. Save models

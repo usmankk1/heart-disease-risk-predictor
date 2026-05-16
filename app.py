@@ -12,13 +12,14 @@ from src.preprocess import load_and_preprocess
 @st.cache_resource
 def load_models():
     rf = joblib.load(r'F:\AI\HDRP\HDRP\models\random_forest.pkl')
+    rf_optuna = joblib.load(r'F:\AI\HDRP\HDRP\models\random_forest_optuna.pkl')
     lr = joblib.load(r'F:\AI\HDRP\HDRP\models\logistic_regression.pkl')
     svm = joblib.load(r'F:\AI\HDRP\HDRP\models\svm_rbf.pkl')
     scaler = joblib.load(r'F:\AI\HDRP\HDRP\models\scaler.pkl')
     _, _, _, _, _, feature_names = load_and_preprocess(r'F:\AI\HDRP\HDRP\data\heart.csv')
-    return rf, lr, svm, scaler, feature_names
+    return rf, rf_optuna, lr, svm, scaler, feature_names
 
-rf_model, lr_model, svm_model, scaler, feature_names = load_models()
+rf_model, rf_optuna_model, lr_model, svm_model, scaler, feature_names = load_models()
 
 st.title('Heart Disease Risk Predictor')
 st.markdown('Enter patient vitals below to predict cardiovascular disease risk.')
@@ -35,7 +36,12 @@ max_hr = st.sidebar.slider('Max Heart Rate', 60, 202, 150)
 exercise_angina = st.sidebar.selectbox('Exercise Angina', ['N', 'Y'])
 oldpeak = st.sidebar.slider('Oldpeak', 0.0, 6.0, 1.0)
 st_slope = st.sidebar.selectbox('ST Slope', ['Up', 'Flat', 'Down'])
-model_choice = st.sidebar.selectbox('Model', ['Random Forest', 'Logistic Regression', 'SVM'])
+model_choice = st.sidebar.selectbox('Model', [
+    'Random Forest (Optuna)',
+    'Random Forest (GridSearchCV)',
+    'Logistic Regression',
+    'SVM'
+])
 
 def preprocess_input():
     data = {
@@ -58,21 +64,27 @@ def preprocess_input():
 
 if st.button('Predict Risk'):
     X = preprocess_input()
-    if model_choice == 'Random Forest':
+
+    if model_choice == 'Random Forest (Optuna)':
+        model = rf_optuna_model
+    elif model_choice == 'Random Forest (GridSearchCV)':
         model = rf_model
     elif model_choice == 'Logistic Regression':
         model = lr_model
     else:
         model = svm_model
+
     prob = model.predict_proba(X)[0][1]
     prediction = 'HIGH RISK' if prob >= 0.5 else 'LOW RISK'
+
     st.markdown('---')
     if prob >= 0.5:
         st.error(f'**{prediction}** — {prob:.1%} probability of heart disease')
     else:
         st.success(f'**{prediction}** — {prob:.1%} probability of heart disease')
+
     st.subheader('Why did the model predict this?')
-    explainer = shap.TreeExplainer(rf_model)
+    explainer = shap.TreeExplainer(rf_optuna_model)
     shap_values = explainer.shap_values(X)
     fig, ax = plt.subplots()
     shap.waterfall_plot(shap.Explanation(
