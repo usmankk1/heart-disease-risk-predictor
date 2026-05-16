@@ -19,12 +19,12 @@ A machine learning project that predicts cardiovascular disease risk from patien
 - Voting Classifier (Ensemble of LR + RF Optuna + XGBoost)
 
 ## Results
-| Metric | Logistic Regression | SVM | Random Forest |
-|--------|-------------------|-----|---------------|
-| Accuracy | 87% | 88% | 89% |
-| ROC-AUC | 0.903 | 0.898 | 0.930 |
-| Heart Disease Recall | 91% | 91% | 91% |
-| 10-Fold CV Accuracy | 83.77% | 84.18% | 84.46% |
+| Metric | Logistic Regression | SVM | Random Forest | XGBoost | MLP | RF Optuna | Voting Classifier |
+|--------|-------------------|-----|---------------|---------|-----|-----------|-------------------|
+| Accuracy | 87% | 88% | 89% | 87% | 83% | 89% | 89% |
+| ROC-AUC | 0.903 | 0.898 | 0.930 | 0.925 | 0.888 | 0.927 | — |
+| Heart Disease Recall | 91% | 91% | 91% | 88% | 87% | 92% | 91% |
+| 10-Fold CV Accuracy | 83.77% | 84.18% | 84.46% | 85.00% | 83.24% | — | — |
 
 ## Key Findings
 - ST_Slope is the most important predictor of heart disease
