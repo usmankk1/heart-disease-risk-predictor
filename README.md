@@ -1,5 +1,5 @@
 # Heart Disease Risk Predictor
-A machine learning project that predicts cardiovascular disease risk from patient vitals using Classification algorithms (Logistic Regression, SVM, and Random Forest).
+A machine learning project that predicts cardiovascular disease risk from patient vitals using 7 classification models — Logistic Regression, SVM, Random Forest (GridSearchCV + Optuna), XGBoost, MLP Neural Network, and Voting Classifier Ensemble.
 
 ## Dataset
 - Source: [Heart Failure Prediction Dataset](https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction)
@@ -8,7 +8,6 @@ A machine learning project that predicts cardiovascular disease risk from patien
 
 ## Project Structure
 
-## Models Used
 ## Models Used
 - Logistic Regression (tuned with GridSearchCV)
 - Support Vector Machine — RBF kernel (tuned with GridSearchCV)
