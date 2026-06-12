@@ -30,8 +30,8 @@ def load_models():
 
 rf_model, rf_optuna_model, lr_model, svm_model, xgb_model, mlp_model, voting_model, scaler, feature_names = load_models()
 
-st.set_page_config(page_title='Heart Disease Risk Predictor', page_icon='❤️', layout='wide')
-st.title('❤️ Heart Disease Risk Predictor')
+st.set_page_config(page_title='Heart Disease Risk Predictor', layout='wide')
+st.title('Heart Disease Risk Predictor')
 st.markdown('Enter patient vitals in the sidebar to predict cardiovascular disease risk.')
 
 st.sidebar.header('Patient Information')
