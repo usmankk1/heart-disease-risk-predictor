@@ -11,7 +11,7 @@ import os
 st.markdown("""
 <style>
 .stApp {
-    background-image: url("https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=1920&q=80");
+    background-image: url("app/static/ecg.jpg");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
