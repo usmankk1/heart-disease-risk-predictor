@@ -8,26 +8,6 @@ import matplotlib.patches as mpatches
 import sys
 import os
 
-
-st.markdown("""
-<style>
-.stApp {
-    background-image: url("https://raw.githubusercontent.com/usmankk1/heart-disease-risk-predictor/main/static/ECG.jpg");
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-}
-section[data-testid="stSidebar"] {
-    background-color: rgba(15, 17, 23, 0.95);
-}
-.block-container {
-    background-color: rgba(15, 17, 23, 0.82);
-    border-radius: 12px;
-    padding: 2rem;
-}
-</style>
-""", unsafe_allow_html=True)
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
 from src.preprocess import load_and_preprocess
