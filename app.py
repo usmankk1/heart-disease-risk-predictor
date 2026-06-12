@@ -5,21 +5,26 @@ import numpy as np
 import shap
 import matplotlib.pyplot as plt
 import sys
+import os
 
-sys.path.append(r'F:\AI\HDRP\HDRP')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(BASE_DIR)
 from src.preprocess import load_and_preprocess
+
+DATA_PATH   = os.path.join(BASE_DIR, 'data', 'heart.csv')
+MODELS_DIR  = os.path.join(BASE_DIR, 'models')
 
 @st.cache_resource
 def load_models():
-    rf = joblib.load(r'F:\AI\HDRP\HDRP\models\random_forest.pkl')
-    rf_optuna = joblib.load(r'F:\AI\HDRP\HDRP\models\random_forest_optuna.pkl')
-    lr = joblib.load(r'F:\AI\HDRP\HDRP\models\logistic_regression.pkl')
-    svm = joblib.load(r'F:\AI\HDRP\HDRP\models\svm_rbf.pkl')
-    xgb = joblib.load(r'F:\AI\HDRP\HDRP\models\xgboost.pkl')
-    mlp = joblib.load(r'F:\AI\HDRP\HDRP\models\mlp.pkl')
-    voting = joblib.load(r'F:\AI\HDRP\HDRP\models\voting_classifier.pkl')
-    scaler = joblib.load(r'F:\AI\HDRP\HDRP\models\scaler.pkl')
-    _, _, _, _, _, feature_names = load_and_preprocess(r'F:\AI\HDRP\HDRP\data\heart.csv')
+    rf       = joblib.load(os.path.join(MODELS_DIR, 'random_forest.pkl'))
+    rf_optuna= joblib.load(os.path.join(MODELS_DIR, 'random_forest_optuna.pkl'))
+    lr       = joblib.load(os.path.join(MODELS_DIR, 'logistic_regression.pkl'))
+    svm      = joblib.load(os.path.join(MODELS_DIR, 'svm_rbf.pkl'))
+    xgb      = joblib.load(os.path.join(MODELS_DIR, 'xgboost.pkl'))
+    mlp      = joblib.load(os.path.join(MODELS_DIR, 'mlp.pkl'))
+    voting   = joblib.load(os.path.join(MODELS_DIR, 'voting_classifier.pkl'))
+    scaler   = joblib.load(os.path.join(MODELS_DIR, 'scaler.pkl'))
+    _, _, _, _, _, feature_names = load_and_preprocess(DATA_PATH)
     return rf, rf_optuna, lr, svm, xgb, mlp, voting, scaler, feature_names
 
 rf_model, rf_optuna_model, lr_model, svm_model, xgb_model, mlp_model, voting_model, scaler, feature_names = load_models()
@@ -28,18 +33,18 @@ st.title('Heart Disease Risk Predictor')
 st.markdown('Enter patient vitals below to predict cardiovascular disease risk.')
 
 st.sidebar.header('Patient Information')
-age = st.sidebar.slider('Age', 20, 80, 50)
-sex = st.sidebar.selectbox('Sex', ['M', 'F'])
-chest_pain = st.sidebar.selectbox('Chest Pain Type', ['ATA', 'NAP', 'ASY', 'TA'])
-resting_bp = st.sidebar.slider('Resting Blood Pressure', 80, 200, 120)
-cholesterol = st.sidebar.slider('Cholesterol (mg/dl)', 100, 600, 200)
-fasting_bs = st.sidebar.selectbox('Fasting Blood Sugar > 120', [0, 1])
-resting_ecg = st.sidebar.selectbox('Resting ECG', ['Normal', 'ST', 'LVH'])
-max_hr = st.sidebar.slider('Max Heart Rate', 60, 202, 150)
-exercise_angina = st.sidebar.selectbox('Exercise Angina', ['N', 'Y'])
-oldpeak = st.sidebar.slider('Oldpeak', 0.0, 6.0, 1.0)
-st_slope = st.sidebar.selectbox('ST Slope', ['Up', 'Flat', 'Down'])
-model_choice = st.sidebar.selectbox('Model', [
+age            = st.sidebar.slider('Age', 20, 80, 50)
+sex            = st.sidebar.selectbox('Sex', ['M', 'F'])
+chest_pain     = st.sidebar.selectbox('Chest Pain Type', ['ATA', 'NAP', 'ASY', 'TA'])
+resting_bp     = st.sidebar.slider('Resting Blood Pressure', 80, 200, 120)
+cholesterol    = st.sidebar.slider('Cholesterol (mg/dl)', 100, 600, 200)
+fasting_bs     = st.sidebar.selectbox('Fasting Blood Sugar > 120', [0, 1])
+resting_ecg    = st.sidebar.selectbox('Resting ECG', ['Normal', 'ST', 'LVH'])
+max_hr         = st.sidebar.slider('Max Heart Rate', 60, 202, 150)
+exercise_angina= st.sidebar.selectbox('Exercise Angina', ['N', 'Y'])
+oldpeak        = st.sidebar.slider('Oldpeak', 0.0, 6.0, 1.0)
+st_slope       = st.sidebar.selectbox('ST Slope', ['Up', 'Flat', 'Down'])
+model_choice   = st.sidebar.selectbox('Model', [
     'Random Forest Optuna (Best)',
     'Voting Classifier (Ensemble)',
     'Random Forest (GridSearchCV)',
@@ -58,9 +63,9 @@ def preprocess_input():
         'Oldpeak': oldpeak, 'ST_Slope': st_slope
     }
     df = pd.DataFrame([data])
-    df['Sex'] = df['Sex'].map({'M': 1, 'F': 0})
+    df['Sex']            = df['Sex'].map({'M': 1, 'F': 0})
     df['ExerciseAngina'] = df['ExerciseAngina'].map({'Y': 1, 'N': 0})
-    df['ST_Slope'] = df['ST_Slope'].map({'Up': 2, 'Flat': 1, 'Down': 0})
+    df['ST_Slope']       = df['ST_Slope'].map({'Up': 2, 'Flat': 1, 'Down': 0})
     df = pd.get_dummies(df, columns=['ChestPainType', 'RestingECG'])
     for col in feature_names:
         if col not in df.columns:
@@ -86,7 +91,7 @@ if st.button('Predict Risk'):
     else:
         model = mlp_model
 
-    prob = model.predict_proba(X)[0][1]
+    prob       = model.predict_proba(X)[0][1]
     prediction = 'HIGH RISK' if prob >= 0.5 else 'LOW RISK'
 
     st.markdown('---')
@@ -96,14 +101,13 @@ if st.button('Predict Risk'):
         st.success(f'**{prediction}** — {prob:.1%} probability of heart disease')
 
     st.subheader('Why did the model predict this?')
-    explainer = shap.TreeExplainer(rf_optuna_model)
+    explainer   = shap.TreeExplainer(rf_optuna_model)
     shap_values = explainer.shap_values(X)
-    fig, ax = plt.subplots()
+    fig, ax     = plt.subplots()
     shap.waterfall_plot(shap.Explanation(
-        values=shap_values[0, :, 1],
-        base_values=explainer.expected_value[1],
-        data=X[0],
-        feature_names=feature_names
+        values      = shap_values[0, :, 1],
+        base_values = explainer.expected_value[1],
+        data        = X[0],
+        feature_names = feature_names
     ), show=False)
     st.pyplot(fig)
-    
