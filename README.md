@@ -69,3 +69,6 @@ Run the Streamlit web app locally:
 ```bash
 streamlit run app.py
 ```
+
+## Live App
+🔗 [https://heart-disease-risk-predictor-7.streamlit.app](https://heart-disease-risk-predictor-7.streamlit.app)
