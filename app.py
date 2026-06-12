@@ -8,6 +8,14 @@ import matplotlib.patches as mpatches
 import sys
 import os
 
+st.markdown("""
+<style>
+.stApp {
+    background-color: #0f1117;
+}
+</style>
+""", unsafe_allow_html=True)
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
 from src.preprocess import load_and_preprocess
