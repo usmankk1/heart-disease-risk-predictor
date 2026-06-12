@@ -11,7 +11,18 @@ import os
 st.markdown("""
 <style>
 .stApp {
-    background-color: #0f1117;
+    background-image: url("https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&q=80");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+section[data-testid="stSidebar"] {
+    background-color: rgba(15, 17, 23, 0.95);
+}
+.block-container {
+    background-color: rgba(15, 17, 23, 0.82);
+    border-radius: 12px;
+    padding: 2rem;
 }
 </style>
 """, unsafe_allow_html=True)
