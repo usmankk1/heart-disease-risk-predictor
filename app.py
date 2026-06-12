@@ -8,10 +8,11 @@ import matplotlib.patches as mpatches
 import sys
 import os
 
+
 st.markdown("""
 <style>
 .stApp {
-    background-image: url("app/static/ecg.jpg");
+    background-image: url("https://raw.githubusercontent.com/usmankk1/heart-disease-risk-predictor/main/static/ECG.jpg");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
