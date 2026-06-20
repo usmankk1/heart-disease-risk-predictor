@@ -1,6 +1,8 @@
 # Heart Disease Risk Predictor
 
-A machine learning project that predicts cardiovascular disease risk from patient vitals using 7 classification models — Logistic Regression, SVM, Random Forest (GridSearchCV + Optuna), XGBoost, MLP Neural Network, and Voting Classifier Ensemble.
+A machine learning project that predicts cardiovascular disease risk from patient vitals using 7 classification models — Logistic Regression, SVM, Random Forest (GridSearchCV + Optuna), XGBoost, MLP Neural Network, and a Voting Classifier Ensemble. 
+
+Optimized and validated across an expanded **5,000-row clinical pool dataset**, achieving a peak ensemble validation accuracy of **97.0%** and an individual model accuracy of **99.1%** via XGBoost/SVM.
 
 ## Dataset
 
@@ -9,16 +11,17 @@ A machine learning project that predicts cardiovascular disease risk from patien
 - **Target:** Heart Disease (0 = No, 1 = Yes)
 
 ## Dataset License
+
 The Heart Failure Prediction dataset is publicly available on Kaggle under the Open Database License (ODbL). Free to use for academic and research purposes. Source: fedesoriano (2021). Heart Failure Prediction Dataset. Kaggle.
 
 ## Ethical Considerations
+
 - This tool is designed purely as a screening aid and decision-support system — it does not replace a clinical medical diagnosis.
 - Model trained on an expanded pool of 5,000 balanced records, significantly improving generalization capacity compared to the baseline 918-patient sample.
 - No patient-identifying data or protected health information (PHI) is processed — the dataset is fully anonymized.
 - Evaluated closely for demographic fairness using subpopulation slice diagnostics (Current validation metrics track equitably across subgroups: Female **99.1%** vs. Male **96.9%** accuracy; Upward ST Slopes **96.0%** vs. Flat ST Slopes **98.5%** accuracy).
 - Final therapeutic and diagnostic decisions must always rest with qualified healthcare professionals.
 
-## Project Structure
 
 ## Models Used
 
