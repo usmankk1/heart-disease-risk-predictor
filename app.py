@@ -16,21 +16,21 @@ MODELS_DIR = os.path.join(BASE_DIR, 'models')
 @st.cache_resource
 def load_models():
     # Load all fresh, synchronized pipeline files
-    rf     = joblib.load(os.path.join(MODELS_DIR, 'random_forest.pkl'))
-    lr     = joblib.load(os.path.join(MODELS_DIR, 'logistic_regression.pkl'))
-    svm    = joblib.load(os.path.join(MODELS_DIR, 'svm_rbf.pkl'))
-    xgb    = joblib.load(os.path.join(MODELS_DIR, 'xgboost.pkl'))
-    mlp    = joblib.load(os.path.join(MODELS_DIR, 'mlp.pkl'))
-    voting = joblib.load(os.path.join(MODELS_DIR, 'voting_classifier.pkl'))
-    scaler = joblib.load(os.path.join(MODELS_DIR, 'scaler.pkl'))
+    rf_grid  = joblib.load(os.path.join(MODELS_DIR, 'random_forest.pkl'))
+    rf_optuna = joblib.load(os.path.join(MODELS_DIR, 'random_forest_optuna.pkl')) # Added!
+    lr       = joblib.load(os.path.join(MODELS_DIR, 'logistic_regression.pkl'))
+    svm      = joblib.load(os.path.join(MODELS_DIR, 'svm_rbf.pkl'))
+    xgb      = joblib.load(os.path.join(MODELS_DIR, 'xgboost.pkl'))
+    mlp      = joblib.load(os.path.join(MODELS_DIR, 'mlp.pkl'))
+    voting   = joblib.load(os.path.join(MODELS_DIR, 'voting_classifier.pkl'))
+    scaler   = joblib.load(os.path.join(MODELS_DIR, 'scaler.pkl'))
     
-    # Extract feature names instantly from the fitted scaler object
     feature_names = scaler.feature_names_in_.tolist()
     
-    return rf, lr, svm, xgb, mlp, voting, scaler, feature_names
+    return rf_grid, rf_optuna, lr, svm, xgb, mlp, voting, scaler, feature_names
 
-# Unpack models smoothly
-rf_model, lr_model, svm_model, xgb_model, mlp_model, voting_model, scaler, feature_names = load_models()
+# Update how you unpack them smoothly:
+rf_grid, rf_optuna, lr_model, svm_model, xgb_model, mlp_model, voting_model, scaler, feature_names = load_models()
 
 st.set_page_config(page_title='Heart Disease Risk Predictor', layout='wide')
 st.title('Heart Disease Risk Predictor')
@@ -173,7 +173,6 @@ def get_recommendations(prob):
                 'Re-assess if symptoms develop (chest pain, shortness of breath)'
             ]
         }
-
 if st.button('Predict Risk', type='primary'):
     X = preprocess_input()
 
@@ -182,9 +181,9 @@ if st.button('Predict Risk', type='primary'):
     elif model_choice == 'XGBoost Classifier':
         model = xgb_model
     elif model_choice == 'Random Forest (GridSearchCV)':
-        model = rf_model
+        model = rf_grid
     elif model_choice == 'Random Forest (Optuna Tuned)':
-        model = rf_model
+        model = rf_optuna
     elif model_choice == 'Support Vector Machine (SVM)':
         model = svm_model
     elif model_choice == 'Logistic Regression':
