@@ -15,9 +15,11 @@ MODELS_DIR = os.path.join(BASE_DIR, 'models')
 
 @st.cache_resource
 def load_models():
-    # Load all fresh, synchronized pipeline files
-    rf_grid  = joblib.load(os.path.join(MODELS_DIR, 'random_forest.pkl'))
-    rf_optuna = joblib.load(os.path.join(MODELS_DIR, 'random_forest_optuna.pkl')) # Added!
+    # Load all fresh, synchronized pipeline files with memory-mapping to prevent MemoryError
+    rf_grid  = joblib.load(os.path.join(MODELS_DIR, 'random_forest.pkl'), mmap_mode='r')
+    rf_optuna = joblib.load(os.path.join(MODELS_DIR, 'random_forest_optuna.pkl'), mmap_mode='r')
+    
+    # Keep the rest standard
     lr       = joblib.load(os.path.join(MODELS_DIR, 'logistic_regression.pkl'))
     svm      = joblib.load(os.path.join(MODELS_DIR, 'svm_rbf.pkl'))
     xgb      = joblib.load(os.path.join(MODELS_DIR, 'xgboost.pkl'))
@@ -89,9 +91,9 @@ def plot_gauge(prob):
     ax.set_thetamin(0)
     ax.set_thetamax(180)
 
-    ax.barh(1, np.pi * 0.33, left=0,          height=0.5, color='#2ecc71', alpha=0.3)
-    ax.barh(1, np.pi * 0.33, left=np.pi*0.33, height=0.5, color='#f39c12', alpha=0.3)
-    ax.barh(1, np.pi * 0.34, left=np.pi*0.66, height=0.5, color='#e74c3c', alpha=0.3)
+    # 50/50 split: Low Risk (0 to 50%) and High Risk (50% to 100%)
+    ax.barh(1, np.pi * 0.50, left=0,          height=0.5, color='#2ecc71', alpha=0.3)
+    ax.barh(1, np.pi * 0.50, left=np.pi*0.50, height=0.5, color='#e74c3c', alpha=0.3)
 
     angle = prob * np.pi
     ax.annotate('', xy=(angle, 0.9), xytext=(angle, 0.0),
@@ -102,9 +104,11 @@ def plot_gauge(prob):
     ax.spines['polar'].set_visible(False)
     ax.grid(False)
 
-    ax.text(np.pi * 0.16, 1.4, 'LOW',    ha='center', fontsize=11, color='#2ecc71', fontweight='bold')
-    ax.text(np.pi * 0.50, 1.4, 'MEDIUM', ha='center', fontsize=11, color='#f39c12', fontweight='bold')
-    ax.text(np.pi * 0.84, 1.4, 'HIGH',   ha='center', fontsize=11, color='#e74c3c', fontweight='bold')
+    # Clean two-class labels centered in their respective halves
+    ax.text(np.pi * 0.25, 1.4, 'LOW RISK',  ha='center', fontsize=12, color='#2ecc71', fontweight='bold')
+    ax.text(np.pi * 0.75, 1.4, 'HIGH RISK', ha='center', fontsize=12, color='#e74c3c', fontweight='bold')
+    
+    # Display the explicit calculated percentage in the lower center pocket
     ax.text(np.pi * 0.50, 0.3, f'{prob:.1%}', ha='center', fontsize=14, fontweight='bold')
 
     plt.tight_layout()
@@ -114,7 +118,7 @@ def plot_model_comparison(X):
     models = {
         'LR': lr_model,
         'SVM': svm_model,
-        'RF': rf_model,
+        'RF': rf_optuna,
         'XGBoost': xgb_model,
         'MLP': mlp_model,
         'Voting Ensemble': voting_model
@@ -256,7 +260,7 @@ if st.button('Predict Risk', type='primary'):
     st.subheader('Explainable AI — Feature Contribution Breakdown (SHAP)')
     
     # We use XGBoost or Random Forest for the explanation to avoid tree-compatibility bugs
-    shap_model = xgb_model if model_choice == 'XGBoost Classifier' else rf_model
+    shap_model = xgb_model if model_choice == 'XGBoost Classifier' else rf_optuna
     explainer   = shap.TreeExplainer(shap_model)
     shap_values = explainer.shap_values(X)
     
