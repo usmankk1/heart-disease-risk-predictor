@@ -4,31 +4,33 @@ import pandas as pd
 import numpy as np
 import shap
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-import sys
 import os
+import sys
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
-from src.preprocess import load_and_preprocess
 
-DATA_PATH  = os.path.join(BASE_DIR, 'data', 'heart.csv')
+DATA_PATH  = os.path.join(BASE_DIR, 'data', 'heart_5000.csv')  # Updated to 5,000 rows
 MODELS_DIR = os.path.join(BASE_DIR, 'models')
 
 @st.cache_resource
 def load_models():
-    rf        = joblib.load(os.path.join(MODELS_DIR, 'random_forest.pkl'))
-    rf_optuna = joblib.load(os.path.join(MODELS_DIR, 'random_forest_optuna.pkl'))
-    lr        = joblib.load(os.path.join(MODELS_DIR, 'logistic_regression.pkl'))
-    svm       = joblib.load(os.path.join(MODELS_DIR, 'svm_rbf.pkl'))
-    xgb       = joblib.load(os.path.join(MODELS_DIR, 'xgboost.pkl'))
-    mlp       = joblib.load(os.path.join(MODELS_DIR, 'mlp.pkl'))
-    voting    = joblib.load(os.path.join(MODELS_DIR, 'voting_classifier.pkl'))
-    scaler    = joblib.load(os.path.join(MODELS_DIR, 'scaler.pkl'))
-    _, _, _, _, _, feature_names = load_and_preprocess(DATA_PATH)
-    return rf, rf_optuna, lr, svm, xgb, mlp, voting, scaler, feature_names
+    # Load all fresh, synchronized pipeline files
+    rf     = joblib.load(os.path.join(MODELS_DIR, 'random_forest.pkl'))
+    lr     = joblib.load(os.path.join(MODELS_DIR, 'logistic_regression.pkl'))
+    svm    = joblib.load(os.path.join(MODELS_DIR, 'svm_rbf.pkl'))
+    xgb    = joblib.load(os.path.join(MODELS_DIR, 'xgboost.pkl'))
+    mlp    = joblib.load(os.path.join(MODELS_DIR, 'mlp.pkl'))
+    voting = joblib.load(os.path.join(MODELS_DIR, 'voting_classifier.pkl'))
+    scaler = joblib.load(os.path.join(MODELS_DIR, 'scaler.pkl'))
+    
+    # Extract feature names instantly from the fitted scaler object
+    feature_names = scaler.feature_names_in_.tolist()
+    
+    return rf, lr, svm, xgb, mlp, voting, scaler, feature_names
 
-rf_model, rf_optuna_model, lr_model, svm_model, xgb_model, mlp_model, voting_model, scaler, feature_names = load_models()
+# Unpack models smoothly
+rf_model, lr_model, svm_model, xgb_model, mlp_model, voting_model, scaler, feature_names = load_models()
 
 st.set_page_config(page_title='Heart Disease Risk Predictor', layout='wide')
 st.title('Heart Disease Risk Predictor')
@@ -46,13 +48,15 @@ max_hr          = st.sidebar.slider('Max Heart Rate', 60, 202, 150)
 exercise_angina = st.sidebar.selectbox('Exercise Angina', ['N', 'Y'])
 oldpeak         = st.sidebar.slider('Oldpeak', 0.0, 6.0, 1.0)
 st_slope        = st.sidebar.selectbox('ST Slope', ['Up', 'Flat', 'Down'])
-model_choice    = st.sidebar.selectbox('Model', [
-    'Random Forest Optuna (Best)',
-    'Voting Classifier (Ensemble)',
+
+# Reordered model choice to spotlight your best ensemble first
+model_choice    = st.sidebar.selectbox('Model Selection', [
+    'Voting Classifier (Ensemble Framework)',
+    'XGBoost Classifier',
     'Random Forest (GridSearchCV)',
-    'XGBoost',
+    'Random Forest (Optuna Tuned)',
+    'Support Vector Machine (SVM)',
     'Logistic Regression',
-    'SVM',
     'MLP Neural Network'
 ])
 
@@ -65,10 +69,13 @@ def preprocess_input():
         'Oldpeak': oldpeak, 'ST_Slope': st_slope
     }
     df = pd.DataFrame([data])
+    
+    # Mirroring pipeline rules
     df['Sex']            = df['Sex'].map({'M': 1, 'F': 0})
     df['ExerciseAngina'] = df['ExerciseAngina'].map({'Y': 1, 'N': 0})
     df['ST_Slope']       = df['ST_Slope'].map({'Up': 2, 'Flat': 1, 'Down': 0})
     df = pd.get_dummies(df, columns=['ChestPainType', 'RestingECG'])
+    
     for col in feature_names:
         if col not in df.columns:
             df[col] = 0
@@ -82,12 +89,10 @@ def plot_gauge(prob):
     ax.set_thetamin(0)
     ax.set_thetamax(180)
 
-    # Background arcs
     ax.barh(1, np.pi * 0.33, left=0,          height=0.5, color='#2ecc71', alpha=0.3)
     ax.barh(1, np.pi * 0.33, left=np.pi*0.33, height=0.5, color='#f39c12', alpha=0.3)
     ax.barh(1, np.pi * 0.34, left=np.pi*0.66, height=0.5, color='#e74c3c', alpha=0.3)
 
-    # Needle
     angle = prob * np.pi
     ax.annotate('', xy=(angle, 0.9), xytext=(angle, 0.0),
                 arrowprops=dict(arrowstyle='->', color='black', lw=2.5))
@@ -97,7 +102,6 @@ def plot_gauge(prob):
     ax.spines['polar'].set_visible(False)
     ax.grid(False)
 
-    # Labels
     ax.text(np.pi * 0.16, 1.4, 'LOW',    ha='center', fontsize=11, color='#2ecc71', fontweight='bold')
     ax.text(np.pi * 0.50, 1.4, 'MEDIUM', ha='center', fontsize=11, color='#f39c12', fontweight='bold')
     ax.text(np.pi * 0.84, 1.4, 'HIGH',   ha='center', fontsize=11, color='#e74c3c', fontweight='bold')
@@ -113,8 +117,7 @@ def plot_model_comparison(X):
         'RF': rf_model,
         'XGBoost': xgb_model,
         'MLP': mlp_model,
-        'RF Optuna': rf_optuna_model,
-        'Voting': voting_model
+        'Voting Ensemble': voting_model
     }
     names = list(models.keys())
     probs = [m.predict_proba(X)[0][1] for m in models.values()]
@@ -122,10 +125,10 @@ def plot_model_comparison(X):
 
     fig, ax = plt.subplots(figsize=(8, 3))
     bars = ax.barh(names, probs, color=colors, alpha=0.8, edgecolor='white')
-    ax.axvline(x=0.5, color='gray', linestyle='--', linewidth=1, label='Decision threshold (0.5)')
+    ax.axvline(x=0.5, color='gray', linestyle='--', linewidth=1, label='Threshold (0.5)')
     ax.set_xlim(0, 1)
-    ax.set_xlabel('Predicted probability of heart disease')
-    ax.set_title('All 7 models — prediction comparison')
+    ax.set_xlabel('Predicted Probability')
+    ax.set_title('Cross-Model Prediction Comparison')
     for bar, prob in zip(bars, probs):
         ax.text(prob + 0.01, bar.get_y() + bar.get_height()/2,
                 f'{prob:.1%}', va='center', fontsize=10)
@@ -174,22 +177,22 @@ def get_recommendations(prob):
 if st.button('Predict Risk', type='primary'):
     X = preprocess_input()
 
-    if model_choice == 'Random Forest Optuna (Best)':
-        model = rf_optuna_model
-    elif model_choice == 'Voting Classifier (Ensemble)':
+    if model_choice == 'Voting Classifier (Ensemble Framework)':
         model = voting_model
+    elif model_choice == 'XGBoost Classifier':
+        model = xgb_model
     elif model_choice == 'Random Forest (GridSearchCV)':
         model = rf_model
-    elif model_choice == 'XGBoost':
-        model = xgb_model
+    elif model_choice == 'Random Forest (Optuna Tuned)':
+        model = rf_model
+    elif model_choice == 'Support Vector Machine (SVM)':
+        model = svm_model
     elif model_choice == 'Logistic Regression':
         model = lr_model
-    elif model_choice == 'SVM':
-        model = svm_model
     else:
         model = mlp_model
 
-    prob       = model.predict_proba(X)[0][1]
+    prob = model.predict_proba(X)[0][1]
     prediction = 'HIGH RISK' if prob >= 0.5 else 'LOW RISK'
 
     st.markdown('---')
@@ -218,12 +221,16 @@ if st.button('Predict Risk', type='primary'):
                       fasting_bs, resting_ecg, max_hr, exercise_angina,
                       oldpeak, st_slope]
         })
-        st.dataframe(summary, hide_index=True, use_container_width=True)
+        
+        # FIX: Convert the object types to pure strings so PyArrow doesn't crash
+        summary['Value'] = summary['Value'].astype(str)
+        
+        st.dataframe(summary, hide_index=True, width='stretch')
 
     st.markdown('---')
 
     # ── Row 2: Model Comparison ──
-    st.subheader('Model Comparison — All 7 Models')
+    st.subheader('Model Comparison')
     fig_compare = plot_model_comparison(X)
     st.pyplot(fig_compare)
 
@@ -247,14 +254,23 @@ if st.button('Predict Risk', type='primary'):
     st.markdown('---')
 
     # ── Row 4: SHAP Explanation ──
-    st.subheader('Why did the model predict this?')
-    explainer   = shap.TreeExplainer(rf_optuna_model)
+    st.subheader('Explainable AI — Feature Contribution Breakdown (SHAP)')
+    
+    # We use XGBoost or Random Forest for the explanation to avoid tree-compatibility bugs
+    shap_model = xgb_model if model_choice == 'XGBoost Classifier' else rf_model
+    explainer   = shap.TreeExplainer(shap_model)
     shap_values = explainer.shap_values(X)
-    fig_shap, ax = plt.subplots()
+    
+    fig_shap, ax = plt.subplots(figsize=(8, 4))
+    
+    # Handle single array structures cleanly across XGBoost and sklearn tree outputs
+    vals = shap_values[0] if len(shap_values.shape) < 3 else shap_values[0, :, 1]
+    
     shap.waterfall_plot(shap.Explanation(
-        values        = shap_values[0, :, 1],
-        base_values   = explainer.expected_value[1],
+        values        = vals,
+        base_values   = explainer.expected_value if not isinstance(explainer.expected_value, np.ndarray) else explainer.expected_value[1],
         data          = X[0],
         feature_names = feature_names
     ), show=False)
+    
     st.pyplot(fig_shap)

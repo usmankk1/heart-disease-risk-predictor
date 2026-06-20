@@ -218,10 +218,9 @@ def train_mlp(X_train, y_train):
     print(f'Best CV F1:      {grid_mlp.best_score_:.4f}')
     return grid_mlp.best_estimator_
 
-
-def train_voting_classifier(lr_model, rf_optuna_model, xgb_model, X_train, y_train):
+def train_voting_classifier(lr_model, rf_model, xgb_model, X_train, y_train):
     """
-    Train a Voting Classifier ensemble combining LR + RF Optuna + XGBoost.
+    Train a Voting Classifier ensemble combining LR + Grid-Optimized RF + XGBoost.
 
     Soft voting averages the predicted probabilities from each model
     and predicts the class with the highest average probability.
@@ -230,15 +229,15 @@ def train_voting_classifier(lr_model, rf_optuna_model, xgb_model, X_train, y_tra
 
     Why these three models?
         - Logistic Regression: linear boundary, fast, interpretable
-        - RF Optuna: best tree ensemble, handles non-linearity
+        - Random Forest: best tree ensemble, handles non-linearity, newly optimized
         - XGBoost: boosting approach, different error patterns than RF
 
     Args:
-        lr_model       : Trained Logistic Regression model
-        rf_optuna_model: Optuna-tuned Random Forest model
-        xgb_model      : Trained XGBoost model
-        X_train        : Training features
-        y_train        : Training labels
+        lr_model  : Trained Logistic Regression model
+        rf_model  : GridSearch-tuned Random Forest model
+        xgb_model : Trained XGBoost model
+        X_train   : Training features
+        y_train   : Training labels
 
     Returns:
         Fitted VotingClassifier
@@ -246,7 +245,7 @@ def train_voting_classifier(lr_model, rf_optuna_model, xgb_model, X_train, y_tra
     voting_clf = VotingClassifier(
         estimators=[
             ('lr',  lr_model),
-            ('rf',  rf_optuna_model),
+            ('rf',  rf_model),
             ('xgb', xgb_model)
         ],
         voting='soft'  # use probability averaging, not majority vote

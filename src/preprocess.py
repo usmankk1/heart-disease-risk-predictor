@@ -95,7 +95,7 @@ def load_and_preprocess(filepath):
 
 if __name__ == '__main__':
     # Quick test — run directly to verify preprocessing works
-    X_tr, X_te, y_tr, y_te, scaler, cols = load_and_preprocess('../data/heart.csv')
+    X_tr, X_te, y_tr, y_te, scaler, cols = load_and_preprocess('../data/heart_5000.csv')
     print(f'Train: {X_tr.shape}, Test: {X_te.shape}')
     print(f'Features ({len(cols)}): {cols}')
     print(f'Class balance — Train: {y_tr.mean():.2%} positive')

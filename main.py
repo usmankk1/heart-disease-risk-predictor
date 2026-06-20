@@ -1,3 +1,4 @@
+import os
 import joblib
 import warnings
 warnings.filterwarnings('ignore')
@@ -8,7 +9,8 @@ from src.train import (train_logistic_regression, train_svm,
                        cross_validate_model)
 from src.evaluate import evaluate_model, plot_roc_curves
 
-DATA_PATH = r'F:\AI\HDRP\HDRP\data\heart.csv'
+DATA_PATH = r'F:\AI\HDRP\HDRP\data\heart_5000.csv'
+MODEL_DIR = r'F:\AI\HDRP\HDRP\models'
 
 def main():
     # 1. Load and preprocess
@@ -22,7 +24,7 @@ def main():
     lr_model = train_logistic_regression(X_train, y_train)
 
     print('\n=== Training SVM ===')
-    svm_model = train_svm(X_train, y_train)
+    svm_model = train_svm(X_train, y_train)  
 
     print('\n=== Training Random Forest ===')
     rf_model = train_random_forest(X_train, y_train)
@@ -33,12 +35,9 @@ def main():
     print('\n=== Training MLP Neural Network ===')
     mlp_model = train_mlp(X_train, y_train)
 
-    # Load Optuna model
-    rf_optuna = joblib.load(r'F:\AI\HDRP\HDRP\models\random_forest_optuna.pkl')
-
-    # 3. Train Voting Classifier
+    # 3. Train Voting Classifier (Now using the fresh, clean grid-optimized rf_model)
     print('\n=== Training Voting Classifier ===')
-    voting_model = train_voting_classifier(lr_model, rf_optuna, xgb_model, X_train, y_train)
+    voting_model = train_voting_classifier(lr_model, rf_model, xgb_model, X_train, y_train)
 
     # 4. Cross-validate
     print('\n=== Cross Validation ===')
@@ -56,29 +55,28 @@ def main():
     rf_proba, rf_auc = evaluate_model(rf_model, X_test, y_test, 'Random Forest')
     xgb_proba, xgb_auc = evaluate_model(xgb_model, X_test, y_test, 'XGBoost')
     mlp_proba, mlp_auc = evaluate_model(mlp_model, X_test, y_test, 'MLP Neural Network')
-    rf_optuna_proba, rf_optuna_auc = evaluate_model(rf_optuna, X_test, y_test, 'Random Forest Optuna')
     voting_proba, voting_auc = evaluate_model(voting_model, X_test, y_test, 'Voting Classifier')
 
-    # 6. ROC curves
+    # 6. ROC curves (Removed old Optuna line to keep things clean for your presentation)
     plot_roc_curves([
         ('Logistic Regression', lr_proba),
         ('SVM (RBF)', svm_proba),
         ('Random Forest', rf_proba),
         ('XGBoost', xgb_proba),
         ('MLP Neural Network', mlp_proba),
-        ('Random Forest Optuna', rf_optuna_proba),
         ('Voting Classifier', voting_proba)
     ], y_test)
 
-    # 7. Save all models
-    joblib.dump(lr_model, 'models/logistic_regression.pkl')
-    joblib.dump(svm_model, 'models/svm_rbf.pkl')
-    joblib.dump(rf_model, 'models/random_forest.pkl')
-    joblib.dump(xgb_model, 'models/xgboost.pkl')
-    joblib.dump(mlp_model, 'models/mlp.pkl')
-    joblib.dump(voting_model, 'models/voting_classifier.pkl')
-    joblib.dump(scaler, 'models/scaler.pkl')
-    print('\nAll models saved to models/')
+    # 7. Save all models to explicit folder locations
+    os.makedirs(MODEL_DIR, exist_ok=True)
+    joblib.dump(lr_model, os.path.join(MODEL_DIR, 'logistic_regression.pkl'))
+    joblib.dump(svm_model, os.path.join(MODEL_DIR, 'svm_rbf.pkl'))
+    joblib.dump(rf_model, os.path.join(MODEL_DIR, 'random_forest.pkl'))
+    joblib.dump(xgb_model, os.path.join(MODEL_DIR, 'xgboost.pkl'))
+    joblib.dump(mlp_model, os.path.join(MODEL_DIR, 'mlp.pkl'))
+    joblib.dump(voting_model, os.path.join(MODEL_DIR, 'voting_classifier.pkl'))
+    joblib.dump(scaler, os.path.join(MODEL_DIR, 'scaler.pkl'))
+    print(f'\nAll models successfully saved to: {MODEL_DIR}')
 
 if __name__ == '__main__':
     main()
