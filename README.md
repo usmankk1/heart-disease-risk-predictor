@@ -9,9 +9,11 @@ A machine learning project that predicts cardiovascular disease risk from patien
 - Target: Heart Disease (0 = No, 1 = Yes)
 
 ## Dataset License
+
 The Heart Failure Prediction dataset is publicly available on Kaggle under the Open Database License (ODbL). Free to use for academic and research purposes. Source: fedesoriano (2021). Heart Failure Prediction Dataset. Kaggle.
 
 ## Ethical Considerations
+
 - This tool is a screening aid only — not a medical diagnosis
 - Model trained on 918 patients — predictions may not generalize to all populations
 - Dataset contains more male patients (79%) than female (21%) — model may perform differently across genders (confirmed in slice error analysis: Female 89.5% vs Male 88.4% accuracy)
@@ -28,16 +30,16 @@ The Heart Failure Prediction dataset is publicly available on Kaggle under the O
 - Random Forest (tuned with Optuna — best model)
 - XGBoost (tuned with GridSearchCV)
 - MLP Neural Network (tuned with GridSearchCV)
-- Voting Classifier (Ensemble of LR + RF Optuna + XGBoost)  
+- Voting Classifier (Ensemble of LR + RF Optuna + XGBoost)
 
 ## Results
 
 | Metric               | Logistic Regression | SVM    | Random Forest | XGBoost | MLP    | RF Optuna | Voting Classifier |
 | -------------------- | ------------------- | ------ | ------------- | ------- | ------ | --------- | ----------------- |
-| Accuracy             | 87%                 | 88%    | 89%           | 87%     | 83%    | 89%       | 89%               |
-| ROC-AUC              | 0.903               | 0.898  | 0.930         | 0.925   | 0.888  | 0.927     | —                |
-| Heart Disease Recall | 91%                 | 91%    | 91%           | 88%     | 87%    | 92%       | 91%               |
-| 10-Fold CV Accuracy  | 83.77%              | 84.18% | 84.46%        | 85.00%  | 83.24% | —        | —                |
+| Accuracy             | 87%                 | 88%    | 89%           | 87%     | 83%    | 89%       | 88%               |
+| ROC-AUC              | 0.903               | 0.898  | 0.930         | 0.925   | 0.888  | 0.927     | 0.928             |
+| Heart Disease Recall | 91%                 | 91%    | 91%           | 88%     | 87%    | 92%       | 90%               |
+| 10-Fold CV Accuracy  | 83.77%              | 84.18% | 84.46%        | 85.00%  | 83.24% | 84.86%    | 84.73%            |
 
 ## Key Findings
 
@@ -71,4 +73,5 @@ streamlit run app.py
 ```
 
 ## Live App
+
 🔗 [https://heart-disease-risk-predictor-7.streamlit.app]
