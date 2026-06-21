@@ -11,11 +11,11 @@ sys.path.append(r'F:\AI\HDRP\HDRP')
 from src.preprocess import load_and_preprocess
 
 # Centralized Path Variables
-DATA_PATH = r'F:\AI\HDRP\HDRP\data\heart_5000.csv'  # Fixed to use your 5,000-row file
+DATA_PATH = r'F:\AI\HDRP\HDRP\data\heart.csv'  # Reverted to original 918-patient real dataset
 MODEL_DIR = r'F:\AI\HDRP\HDRP\models'
 
-# 1. Load your clean grid-optimized model and preprocess matching data split
-rf_model = joblib.load(os.path.join(MODEL_DIR, 'random_forest.pkl'))
+# 1. Load the Optuna-tuned Random Forest (our best model) and preprocess matching data split
+rf_model = joblib.load(os.path.join(MODEL_DIR, 'random_forest_optuna.pkl'))
 X_train, X_test, y_train, y_test, scaler, feature_names = load_and_preprocess(DATA_PATH)
 
 # 2. Initialize the TreeExplainer

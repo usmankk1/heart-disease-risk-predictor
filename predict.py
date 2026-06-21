@@ -5,7 +5,7 @@ import sys
 sys.path.append(r'F:\AI\HDRP\HDRP')
 
 # Set configuration paths centrally
-DATA_PATH = r'F:\AI\HDRP\HDRP\data\heart_5000.csv'
+DATA_PATH = r'F:\AI\HDRP\HDRP\data\heart.csv'  # Reverted to original 918-patient real dataset
 MODEL_DIR = r'F:\AI\HDRP\HDRP\models'
 
 def predict_risk(patient_data, model_name='svm'):

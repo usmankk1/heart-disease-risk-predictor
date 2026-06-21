@@ -22,6 +22,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 import numpy as np
+import optuna
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier
@@ -136,6 +137,63 @@ def train_random_forest(X_train, y_train):
     print(f'Best RF params: {grid_rf.best_params_}')
     print(f'Best CV F1:     {grid_rf.best_score_:.4f}')
     return grid_rf.best_estimator_
+
+
+def train_random_forest_optuna(X_train, y_train, n_trials=50):
+    """
+    Train Random Forest classifier using Optuna Bayesian hyperparameter optimisation.
+
+    Unlike GridSearchCV, which exhaustively tries every combination on a fixed
+    grid, Optuna uses a Tree-structured Parzen Estimator (TPE) sampler to
+    intelligently propose new hyperparameter combinations based on the results
+    of previous trials — focusing search effort on promising regions of the
+    search space instead of wasting trials on combinations unlikely to help.
+    This often finds a better (or comparable) result in fewer total fits than
+    an exhaustive grid search over the same ranges.
+
+    Hyperparameters tuned:
+        n_estimators      : Number of trees in the forest
+        max_depth         : Maximum tree depth
+        min_samples_split : Minimum samples required to split an internal node
+        min_samples_leaf  : Minimum samples required at a leaf node
+        max_features       : Number of features considered at each split
+
+    Args:
+        X_train (np.ndarray): Training features
+        y_train (pd.Series):  Training labels
+        n_trials (int):       Number of Optuna trials to run (default 50)
+
+    Returns:
+        RandomForestClassifier refit on the full training set using the
+        best hyperparameters Optuna found
+    """
+    def objective(trial):
+        params = {
+            'n_estimators':      trial.suggest_int('n_estimators', 50, 400),
+            'max_depth':         trial.suggest_int('max_depth', 3, 30),
+            'min_samples_split': trial.suggest_int('min_samples_split', 2, 10),
+            'min_samples_leaf':  trial.suggest_int('min_samples_leaf', 1, 10),
+            'max_features':      trial.suggest_categorical('max_features', ['sqrt', 'log2', None]),
+            'random_state':      42
+        }
+        model = RandomForestClassifier(**params)
+        # 5-fold CV on the training set only — test set stays untouched
+        scores = cross_val_score(model, X_train, y_train, cv=5, scoring='f1', n_jobs=-1)
+        return scores.mean()
+
+    optuna.logging.set_verbosity(optuna.logging.WARNING)  # keep console output clean
+    study = optuna.create_study(
+        direction='maximize',
+        sampler=optuna.samplers.TPESampler(seed=42)
+    )
+    study.optimize(objective, n_trials=n_trials, show_progress_bar=False)
+
+    print(f'Best RF (Optuna) params: {study.best_params}')
+    print(f'Best CV F1:              {study.best_value:.4f}')
+
+    best_model = RandomForestClassifier(**study.best_params, random_state=42)
+    best_model.fit(X_train, y_train)
+    return best_model
 
 
 def train_xgboost(X_train, y_train):

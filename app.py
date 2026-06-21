@@ -10,7 +10,7 @@ import sys
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
 
-DATA_PATH  = os.path.join(BASE_DIR, 'data', 'heart_5000.csv')  # Updated to 5,000 rows
+DATA_PATH  = os.path.join(BASE_DIR, 'data', 'heart.csv')  # Reverted to original 918-patient real dataset
 MODELS_DIR = os.path.join(BASE_DIR, 'models')
 
 @st.cache_resource
