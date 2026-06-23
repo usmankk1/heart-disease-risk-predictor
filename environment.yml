@@ -1,0 +1,17 @@
+name: heartproj
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pandas=2.2.0
+  - numpy=1.26.4
+  - scikit-learn=1.5.2
+  - matplotlib=3.8
+  - seaborn
+  - joblib
+  - shap
+  - streamlit
+  - xgboost
+  - optuna
+  - imbalanced-learn
+  - pip
